@@ -82,6 +82,12 @@ TEST_F(ExecutorTest,Accelerate){
     EXPECT_EQ(loc.first.first, 0);  // 
     EXPECT_EQ(loc.first.second, 3);  // 
     EXPECT_EQ(loc.second, 'W');      // 方向变为W
+    car.DoCommand("F");
+    car.DoCommand("M");
+    loc = car.GetInfo();
+    EXPECT_EQ(loc.first.first, -1);  // 
+    EXPECT_EQ(loc.first.second, 3);  // 
+    EXPECT_EQ(loc.second, 'W');      // 方向变为W
 }
 int main(int argc, char **argv)
 {
