@@ -1,13 +1,16 @@
 #include "executor.h"
 
+// 构造函数，初始化Executor对象
 Executor::Executor(int initX, int initY, char initHeading)
-    : x(initX), y(initY), heading(initHeading), isAccelerating(false) {
+    : x(initX), y(initY), heading(initHeading), isAccelerating(false),isReversing(false) {
     // 初始状态存储到历史栈中
     history.push({{x, y}, heading});
 }
 
+// 析构函数，释放Executor对象
 Executor::~Executor() {}
 
+// 执行命令
 void Executor::DoCommand(const std::string& commands) {
     for (auto command : commands) {
         // 保存当前状态到历史栈中
@@ -26,12 +29,48 @@ void Executor::DoCommand(const std::string& commands) {
         case 'F':
             ToggleAccelerating();
             break;
+        case 'B':
+            ToggleReversing();
+            break;
         }
     }
 }
 
+// 前进或者后退
 void Executor::Move() {
-    if (isAccelerating) {
+    if (isAccelerating && isReversing) {
+        // 加速状态下后退2格
+        switch (heading) {
+        case 'N':
+            y -= 2;
+            break;
+        case 'S':
+            y += 2;
+            break;
+        case 'E':
+            x -= 2;
+            break;
+        case 'W':
+            x += 2;
+            break;
+        }
+    } else if(isReversing && !isAccelerating) {
+        // 普通状态下后退 1格
+        switch (heading) {
+        case 'N':
+            y--;
+            break;
+        case 'S':
+            y++;
+            break;
+        case 'E':
+            x--;
+            break;
+        case 'W':
+            x++;
+            break;
+        }
+    }else if(isAccelerating && !isReversing) {
         // 加速状态下前进2格
         switch (heading) {
         case 'N':
@@ -43,13 +82,12 @@ void Executor::Move() {
         case 'E':
             x += 2;
             break;
-        case 'W':
+        case 'W':   
             x -= 2;
             break;
         }
-    } else {
-        // 普通状态下前进1格
-        switch (heading) {
+    }else if(!isAccelerating && !isReversing) {
+        switch(heading){
         case 'N':
             y++;
             break;
@@ -66,61 +104,144 @@ void Executor::Move() {
     }
 }
 
+// 左转
 void Executor::HeadLeft() {
-    if (isAccelerating) {
-        // 加速状态下先前进1格，再左转
+    if (isAccelerating && isReversing) {
+        // 加速状态下先后退1格，再右转
+        switch (heading) {
+        case 'N':
+            y--;
+            heading = 'E';
+            break;
+        case 'S':
+            y++;
+            heading = 'W';
+            break;
+        case 'E':
+            x--;
+            heading = 'S';
+            break;
+        case 'W':
+            x++;
+            heading = 'N';
+            break;
+        }
+    }else if(isReversing && !isAccelerating) {
+        // 普通状态下右转
+        switch (heading) {
+        case 'N':
+            heading = 'E';
+            break;
+        case 'S':
+            heading = 'W';
+            break;
+        case 'E':
+            heading = 'S';
+            break;
+        case 'W':
+            heading = 'N';
+            break;
+        }
+    }else if(isAccelerating && !isReversing) {
+        // 加速状态下先前进一格
         switch (heading) {
         case 'N':
             y++;
+            heading = 'W';
             break;
         case 'S':
             y--;
+            heading = 'E';
             break;
         case 'E':
             x++;
+            heading = 'N';
             break;
         case 'W':
             x--;
+            heading = 'S';
+            break;
+        }
+    }else if(!isReversing && !isAccelerating) {
+        // 普通状态下左转
+        switch (heading) {
+        case 'N':
+            heading = 'W';
+            break;
+        case 'S':
+            heading = 'E';
+            break;
+        case 'E':
+            heading = 'N';
+            break;
+        case 'W':
+            heading = 'S';
             break;
         }
     }
-    // 普通状态下左转
-    switch (heading) {
-    case 'N':
-        heading = 'W';
-        break;
-    case 'S':
-        heading = 'E';
-        break;
-    case 'E':
-        heading = 'N';
-        break;
-    case 'W':
-        heading = 'S';
-        break;
-    }
 }
 
+// 右转
 void Executor::HeadRight() {
-    if (isAccelerating) {
+    if (isAccelerating && isReversing) {
+        // 加速状态下先后退1格，再左转
+        switch (heading) {
+        case 'N':
+            y--;
+            heading = 'W';
+            break;
+        case 'S':
+            y++;
+            heading = 'E';
+            break;
+        case 'E':
+            x--;
+            heading = 'N';
+            break;
+        case 'W':
+            x++;
+            heading = 'S';
+            break;
+        }
+    }else if(isReversing && !isAccelerating) {
+        // 普通状态下左转
+        switch (heading) {
+        case 'N':
+            heading = 'W';
+            break;
+        case 'S':
+            heading = 'E';
+            break;
+        case 'E':
+            heading = 'N';
+            break;
+        case 'W':
+            heading = 'S';
+            break;
+        }
+    }else if(isAccelerating && !isReversing){
         // 加速状态下先前进1格，再右转
         switch (heading) {
         case 'N':
             y++;
+            heading = 'E';
             break;
         case 'S':
             y--;
+            heading = 'W';
             break;
         case 'E':
             x++;
+            heading = 'S';
             break;
         case 'W':
             x--;
+            heading = 'N';
             break;
         }
-    }
-    // 普通状态下右转
-    switch (heading) {
+    }else if(!isReversing && !isAccelerating){
+        // 普通状态下右转
+        switch (heading) {
     case 'N':
         heading = 'E';
         break;
@@ -134,8 +255,10 @@ void Executor::HeadRight() {
         heading = 'N';
         break;
     }
+    }
 }
 
+// 获取当前位置和朝向
 Location Executor::GetInfo() {
     return {{x, y}, heading};
 }
@@ -154,4 +277,7 @@ void Executor::Undo() {
 // 切换加速状态
 void Executor::ToggleAccelerating() {
     isAccelerating = !isAccelerating;
+}
+void Executor::ToggleReversing(){
+    isReversing = !isReversing;
 }

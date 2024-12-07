@@ -77,18 +77,54 @@ TEST_F(ExecutorTest,Accelerate){
      EXPECT_EQ(loc.first.first, 0);   // x仍为0
     EXPECT_EQ(loc.first.second, 2);  // y为2
     EXPECT_EQ(loc.second, 'N');      // 方向仍然是N
-    car.DoCommand("L");  // 加速状态下，先前进1格，再左转
-    loc = car.GetInfo();
-    EXPECT_EQ(loc.first.first, 0);  // 
-    EXPECT_EQ(loc.first.second, 3);  // 
-    EXPECT_EQ(loc.second, 'W');      // 方向变为W
-    car.DoCommand("F");
+}
+// 倒车
+TEST_F(ExecutorTest, Reverse)
+{
+    car.DoCommand("B");
     car.DoCommand("M");
-    loc = car.GetInfo();
-    EXPECT_EQ(loc.first.first, -1);  // 
-    EXPECT_EQ(loc.first.second, 3);  // 
+    auto loc = car.GetInfo();
+    EXPECT_EQ(loc.first.first, 0);   // x仍为0
+    EXPECT_EQ(loc.first.second, -1);  // y减少1
+    EXPECT_EQ(loc.second, 'N');      // 方向仍然是N
+}
+
+// 加速状态下倒车
+TEST_F(ExecutorTest, AccelerateAndReverse)
+{
+    car.DoCommand("F");
+    car.DoCommand("B");
+    car.DoCommand("M");
+    auto loc = car.GetInfo();
+    EXPECT_EQ(loc.first.first, 0);   // x仍为0
+    EXPECT_EQ(loc.first.second, -2);  // y减少2
+    EXPECT_EQ(loc.second, 'N');      // 方向仍然是N
+}
+
+// 倒车后左转
+TEST_F(ExecutorTest, ReverseAndTurnLeft)
+{
+    car.DoCommand("F");
+    car.DoCommand("B");
+    car.DoCommand("L");
+    auto loc = car.GetInfo();
+    EXPECT_EQ(loc.first.first, 0);   // x仍为0
+    EXPECT_EQ(loc.first.second, -1);  // y仍为0
+    EXPECT_EQ(loc.second, 'E');      // 方向变为E
+}
+
+// 倒车后右转
+TEST_F(ExecutorTest, ReverseAndTurnRight)
+{
+    car.DoCommand("F");
+    car.DoCommand("B");
+    car.DoCommand("R");
+    auto loc = car.GetInfo();
+    EXPECT_EQ(loc.first.first, 0);   // x仍为0
+    EXPECT_EQ(loc.first.second, -1);  // y仍为0
     EXPECT_EQ(loc.second, 'W');      // 方向变为W
 }
+
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
