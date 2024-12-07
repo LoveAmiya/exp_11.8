@@ -125,6 +125,30 @@ TEST_F(ExecutorTest, ReverseAndTurnRight)
     EXPECT_EQ(loc.second, 'W');      // 方向变为W
 }
 
+TEST_F(ExecutorTest, SportsCar){
+    car.DoCommand("S");
+    car.DoCommand("M");
+    car.DoCommand("R");
+    car.DoCommand("M");
+    car.DoCommand("L");
+    auto loc = car.GetInfo();
+    EXPECT_EQ(loc.first.first, 3);   // x增加3
+    EXPECT_EQ(loc.first.second, 3);  // y增加3
+    EXPECT_EQ(loc.second, 'N');      // 方向仍然是N
+}
+
+TEST_F(ExecutorTest, Bus){
+    car.DoCommand("U");
+    car.DoCommand("M");
+    car.DoCommand("L");
+    car.DoCommand("M");
+    car.DoCommand("R");
+    auto loc = car.GetInfo();
+    EXPECT_EQ(loc.first.first, -2);   // x减少2
+    EXPECT_EQ(loc.first.second, 2);  // y增加2
+    EXPECT_EQ(loc.second, 'N');      // 方向仍然是N
+}
+
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);

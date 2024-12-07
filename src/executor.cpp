@@ -2,7 +2,7 @@
 
 // 构造函数，初始化Executor对象
 Executor::Executor(int initX, int initY, char initHeading)
-    : x(initX), y(initY), heading(initHeading), isAccelerating(false),isReversing(false) {
+    : x(initX), y(initY), heading(initHeading), isAccelerating(false),isReversing(false),isSportsCar(false),isBus(false) {
     // 初始状态存储到历史栈中
     history.push({{x, y}, heading});
 }
@@ -32,13 +32,36 @@ void Executor::DoCommand(const std::string& commands) {
         case 'B':
             ToggleReversing();
             break;
+        case 'S':
+            ToggleSportsCar();
+            break;
+        case 'U':
+            ToggleBus();
+            break;
         }
     }
 }
 
 // 前进或者后退
 void Executor::Move() {
-    if (isAccelerating && isReversing) {
+    if(isSportsCar){
+        // 跑车前进2格
+        switch (heading) {
+        case 'N':
+            y+=2;
+            break;
+        case 'S':
+            y-=2;
+            break;
+        case 'E':
+            x+=2;
+            break;
+        case 'W':
+            x-=2;
+            break;
+    }
+    }
+    if (isAccelerating && isReversing && !isSportsCar) {
         // 加速状态下后退2格
         switch (heading) {
         case 'N':
@@ -54,7 +77,7 @@ void Executor::Move() {
             x += 2;
             break;
         }
-    } else if(isReversing && !isAccelerating) {
+    } else if(isReversing && !isAccelerating && !isSportsCar) {
         // 普通状态下后退 1格
         switch (heading) {
         case 'N':
@@ -70,7 +93,7 @@ void Executor::Move() {
             x++;
             break;
         }
-    }else if(isAccelerating && !isReversing) {
+    }else if(isAccelerating && !isReversing && !isSportsCar) {
         // 加速状态下前进2格
         switch (heading) {
         case 'N':
@@ -86,7 +109,7 @@ void Executor::Move() {
             x -= 2;
             break;
         }
-    }else if(!isAccelerating && !isReversing) {
+    }else if(!isAccelerating && !isReversing && !isSportsCar) {
         switch(heading){
         case 'N':
             y++;
@@ -106,7 +129,47 @@ void Executor::Move() {
 
 // 左转
 void Executor::HeadLeft() {
-    if (isAccelerating && isReversing) {
+    if(isSportsCar){
+        switch (heading) {
+        case 'N':
+            x--;
+            heading = 'W';
+            break;
+        case 'S':
+            x++;
+            heading = 'E';
+            break;
+        case 'E':
+            y++;
+            heading = 'N';
+            break;
+        case 'W':
+            y--;
+            heading = 'S';
+            break;
+    }
+    }
+    if(isBus){
+        switch (heading) {
+        case 'N':
+            y++;
+            heading = 'W';
+            break;
+        case 'S':
+            y--;
+            heading = 'E';
+            break;
+        case 'E':
+            x++;
+            heading = 'N';
+            break;
+        case 'W':
+            x--;
+            heading = 'S';
+            break;
+    }
+    }
+    if (isAccelerating && isReversing && !isSportsCar && !isBus) {
         // 加速状态下先后退1格，再右转
         switch (heading) {
         case 'N':
@@ -126,7 +189,7 @@ void Executor::HeadLeft() {
             heading = 'N';
             break;
         }
-    }else if(isReversing && !isAccelerating) {
+    }else if(isReversing && !isAccelerating && !isSportsCar && !isBus) {
         // 普通状态下右转
         switch (heading) {
         case 'N':
@@ -142,7 +205,7 @@ void Executor::HeadLeft() {
             heading = 'N';
             break;
         }
-    }else if(isAccelerating && !isReversing) {
+    }else if(isAccelerating && !isReversing && !isSportsCar && !isBus) {
         // 加速状态下先前进一格
         switch (heading) {
         case 'N':
@@ -162,7 +225,7 @@ void Executor::HeadLeft() {
             heading = 'S';
             break;
         }
-    }else if(!isReversing && !isAccelerating) {
+    }else if(!isReversing && !isAccelerating && !isSportsCar && !isBus) {
         // 普通状态下左转
         switch (heading) {
         case 'N':
@@ -183,7 +246,47 @@ void Executor::HeadLeft() {
 
 // 右转
 void Executor::HeadRight() {
-    if (isAccelerating && isReversing) {
+    if(isSportsCar){
+        switch (heading) {
+        case 'N':
+            x++;
+            heading = 'E';
+            break;
+        case 'S':
+            x--;
+            heading = 'W';
+            break;
+        case 'E':
+            y--;
+            heading = 'S';
+            break;
+        case 'W':
+            y++;
+            heading = 'N';
+            break;
+    }
+    }
+    if(isBus){
+        switch (heading) {
+        case 'N':
+            y++;
+            heading = 'E';
+            break;
+        case 'S':
+            y--;
+            heading = 'W';
+            break;
+        case 'E':
+            x++;
+            heading = 'S';
+            break;
+        case 'W':
+            x--;
+            heading = 'N';
+            break;
+    }
+    }
+    if (isAccelerating && isReversing && !isSportsCar && !isBus) {
         // 加速状态下先后退1格，再左转
         switch (heading) {
         case 'N':
@@ -203,7 +306,7 @@ void Executor::HeadRight() {
             heading = 'S';
             break;
         }
-    }else if(isReversing && !isAccelerating) {
+    }else if(isReversing && !isAccelerating && !isSportsCar && !isBus) {
         // 普通状态下左转
         switch (heading) {
         case 'N':
@@ -219,7 +322,7 @@ void Executor::HeadRight() {
             heading = 'S';
             break;
         }
-    }else if(isAccelerating && !isReversing){
+    }else if(isAccelerating && !isReversing && !isSportsCar && !isBus) {
         // 加速状态下先前进1格，再右转
         switch (heading) {
         case 'N':
@@ -239,7 +342,7 @@ void Executor::HeadRight() {
             heading = 'N';
             break;
         }
-    }else if(!isReversing && !isAccelerating){
+    }else if(!isReversing && !isAccelerating && !isSportsCar && !isBus) {
         // 普通状态下右转
         switch (heading) {
     case 'N':
@@ -280,4 +383,10 @@ void Executor::ToggleAccelerating() {
 }
 void Executor::ToggleReversing(){
     isReversing = !isReversing;
+}
+void Executor::ToggleSportsCar() {
+    isSportsCar = !isSportsCar;
+}
+void Executor::ToggleBus() {
+    isBus = !isBus;
 }
